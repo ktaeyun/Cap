@@ -1,0 +1,38 @@
+<!-- signup.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>HairBridge - 회원가입</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="center-box">
+    <h1>HairBridge</h1>
+    <p class="subtitle">회원 정보를 입력해주세요</p>
+
+    <form id="signup-form">
+      <input type="text" id="name" placeholder="이름" required>
+      <input type="date" id="birth" required>
+      <select id="gender" required>
+        <option value="">성별 선택</option>
+        <option value="남">남자</option>
+        <option value="여">여자</option>
+      </select>
+      <button type="submit">가입하기</button>
+    </form>
+  </main>
+
+  <script>
+    const email = localStorage.getItem("email");
+    document.querySelector('.subtitle').innerText = `${email} 계정의 정보를 입력해주세요`;
+
+    document.getElementById("signup-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const name = document.getElementById("name").value;
+      localStorage.setItem("name", name);
+      window.location.href = "dashboard.html";
+    });
+  </script>
+</body>
+</html>

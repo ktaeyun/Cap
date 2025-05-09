@@ -1,0 +1,30 @@
+<!-- login.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>HairBridge - 로그인</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="center-box">
+    <h1>HairBridge</h1>
+    <p class="subtitle">비밀번호를 입력해주세요</p>
+
+    <form id="login-form">
+      <input type="password" id="password" placeholder="비밀번호" required>
+      <button type="submit">로그인</button>
+    </form>
+  </main>
+  <script>
+    const email = localStorage.getItem("email");
+    document.querySelector('.subtitle').innerText = `${email} 계정의 비밀번호를 입력해주세요`;
+
+    document.getElementById("login-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+      // 여기선 간단히 넘김
+      window.location.href = "dashboard.html";
+    });
+  </script>
+</body>
+</html>
