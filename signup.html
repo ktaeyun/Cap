@@ -1,38 +1,53 @@
-<!-- signup.html -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <title>HairBridge - 회원가입</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <main class="center-box">
     <h1>HairBridge</h1>
-    <p class="subtitle">회원 정보를 입력해주세요</p>
+    <p class="subtitle" id="email-info">회원 정보를 입력해주세요</p>
 
     <form id="signup-form">
       <input type="text" id="name" placeholder="이름" required>
-      <input type="date" id="birth" required>
-      <select id="gender" required>
-        <option value="">성별 선택</option>
-        <option value="남">남자</option>
-        <option value="여">여자</option>
-      </select>
+
+      <!-- 생년월일 -->
+      <div class="birth-group">
+        <input type="text" id="birth-year" placeholder="YYYY" maxlength="4" required>
+        <input type="text" id="birth-month" placeholder="MM" maxlength="2" required>
+        <input type="text" id="birth-day" placeholder="DD" maxlength="2" required>
+      </div>
+
+      <!-- 성별 -->
+      <div class="gender-group">
+        <label><input type="radio" name="gender" value="남" required> 남자</label>
+        <label><input type="radio" name="gender" value="여"> 여자</label>
+      </div>
+
+      <!-- 비밀번호 입력 -->
+      <div class="form-group">
+        <input type="password" id="password" placeholder="비밀번호 (4~12자)" required>
+        <small id="pw-warning" class="warning"></small>
+      </div>
+        
+      <div class="form-group">
+        <input type="password" id="confirm-password" placeholder="비밀번호 확인" required>
+        <small id="confirm-warning" class="warning"></small>
+      </div>
+  
+
+      <!-- 개인정보동의 -->
+      <label class="checkbox">
+        <input type="checkbox" id="agree" required>
+        개인정보 수집 및 이용에 동의합니다.
+      </label>
+
       <button type="submit">가입하기</button>
     </form>
   </main>
-
-  <script>
-    const email = localStorage.getItem("email");
-    document.querySelector('.subtitle').innerText = `${email} 계정의 정보를 입력해주세요`;
-
-    document.getElementById("signup-form").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const name = document.getElementById("name").value;
-      localStorage.setItem("name", name);
-      window.location.href = "dashboard.html";
-    });
-  </script>
+  <script src="js/main.js"></script>
 </body>
 </html>

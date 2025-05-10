@@ -16,15 +16,6 @@
       <button type="submit">로그인</button>
     </form>
   </main>
-  <script>
-    const email = localStorage.getItem("email");
-    document.querySelector('.subtitle').innerText = `${email} 계정의 비밀번호를 입력해주세요`;
-
-    document.getElementById("login-form").addEventListener("submit", function(e) {
-      e.preventDefault();
-      // 여기선 간단히 넘김
-      window.location.href = "dashboard.html";
-    });
-  </script>
+  <script src="js/main.js"></script>
 </body>
 </html>
