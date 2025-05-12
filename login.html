@@ -1,4 +1,3 @@
-<!-- login.html -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -9,13 +8,17 @@
 <body>
   <main class="center-box">
     <h1>HairBridge</h1>
-    <p class="subtitle">비밀번호를 입력해주세요</p>
+    <p class="subtitle">비밀번호를 입력해주세요.</p>
 
     <form id="login-form">
-      <input type="password" id="password" placeholder="비밀번호" required>
-      <button type="submit">로그인</button>
+      <div class="form-group">
+        <input type="password" id="password" placeholder="비밀번호 (4~12자)" required>
+        <small id="login-warning" class="warning"></small>
+      </div>
+      <button type="submit" class="primary-btn">로그인</button>
     </form>
   </main>
+
   <script src="js/main.js"></script>
 </body>
 </html>

@@ -35,7 +35,7 @@ body {
   form {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 20px;
   }
   
   input, select {
@@ -60,6 +60,7 @@ body {
   
   button:hover {
     background-color: #2563EB;
+    transform: scale(0.98);
   }
   
   .birth-group {
@@ -99,10 +100,32 @@ body {
     color: #e74c3c;
     margin-top: 4px;
   }
+
+  .primary-btn {
+  width: 100%;
+  padding: 16px;
+  background-color: #3182F6;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.primary-btn:hover {
+  background-color: #2563EB;
+}
+
+.primary-btn:active {
+  transform: scale(0.98);
+}
   
   .form-group {
     display: flex;
     flex-direction: column;
+    gap: 4px;
   }
   
   .recent-info {
@@ -150,3 +173,58 @@ body {
     margin-bottom: 32px; /* 아래와도 간격 */
   }
   
+  .tagline {
+  font-size: 14px;
+  color: #666;
+  margin-top: 4px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+#login-warning {
+  margin-top: 4px;
+}
+
+.upload-box {
+  width: 100%;
+  height: 200px;
+  background-color: #F2F4F6;
+  border: 2px dashed #ccc;
+  border-radius: 12px;
+  color: #777;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-bottom: 16px;
+  transition: background-color 0.2s ease;
+}
+
+.upload-box:hover {
+  background-color: #E5E8EB;
+}
+
+#preview-container img {
+  width: 100%;
+  margin-top: 12px;
+  border-radius: 8px;
+}
+
+
+.upload-info {
+  font-size: 13px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.file-list {
+  list-style: none;
+  padding-left: 0;
+  font-size: 13px;
+  color: #444;
+  margin-top: 8px;
+}
+
+.file-list li {
+  margin-bottom: 4px;
+}

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>HairBridge - 헤어 분석</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="center-box">
+    <h1>HairBridge</h1>
+    <p class="subtitle">분석을 위한 사진을 업로드해주세요</p>
+
+    <form id="analysis-form">
+      <label for="photo-upload" class="upload-box">
+        클릭하여 사진 선택
+        <input type="file" id="photo-upload" accept="image/*" required hidden>
+      </label>
+
+      <div id="preview-container"></div>
+      <p id="file-info" class="upload-info"></p>
+      <ul id="file-list" class="file-list"></ul>
+      <button type="submit" class="primary-btn">분석 요청하기</button>
+    </form>
+  </main>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

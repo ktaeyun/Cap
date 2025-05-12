@@ -1,13 +1,15 @@
 // main.js
 
 document.addEventListener("DOMContentLoaded", function () {
-    const path = window.location.pathname;
-  
-    if (path.includes("index.html")) initIndexPage();
-    else if (path.includes("signup.html")) initSignupPage();
-    else if (path.includes("login.html")) initLoginPage();
-    else if (path.includes("dashboard.html")) initDashboard();
-  });
+  const path = window.location.pathname;
+
+  if (path.includes("index.html")) initIndexPage();
+  else if (path.includes("signup.html")) initSignupPage();
+  else if (path.includes("login.html")) initLoginPage();
+  else if (path.includes("dashboard.html")) initDashboard();
+  else if (path.includes("analysis.html")) initAnalysisPage(); 
+});
+
   
   function initIndexPage() {
     const form = document.getElementById("email-form");
@@ -153,3 +155,45 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
   
+  function initAnalysisPage() {
+  const fileInput = document.getElementById("photo-upload");
+  const preview = document.getElementById("preview-container");
+  const fileInfo = document.getElementById("file-info");
+  const fileList = document.getElementById("file-list");
+
+  fileInput.addEventListener("change", function () {
+    const files = Array.from(this.files);
+    preview.innerHTML = "";
+    fileList.innerHTML = "";
+
+    if (files.length === 0) {
+      fileInfo.innerText = "선택된 파일이 없습니다.";
+      return;
+    }
+
+    fileInfo.innerText = `총 ${files.length}장의 사진이 업로드되었습니다.`;
+
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const img = document.createElement("img");
+        img.src = e.target.result;
+        img.alt = file.name;
+        img.style.width = "100%";
+        img.style.borderRadius = "8px";
+        img.style.marginTop = "12px";
+        preview.appendChild(img);
+      };
+      reader.readAsDataURL(file);
+
+      const li = document.createElement("li");
+      li.innerText = file.name;
+      fileList.appendChild(li);
+    });
+  });
+
+  document.getElementById("analysis-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    alert("분석 요청이 완료되었습니다!");
+  });
+}
