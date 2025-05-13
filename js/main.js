@@ -132,7 +132,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
       if (users[email].password !== password) {
-        alert("비밀번호가 일치하지 않습니다.");
+        alert("비밀번호가 일치하지 않습니다.");  
         return;
       }
   
@@ -158,38 +158,105 @@ document.addEventListener("DOMContentLoaded", function () {
   function initAnalysisPage() {
   const fileInput = document.getElementById("photo-upload");
   const preview = document.getElementById("preview-container");
+  const previewSection = document.querySelector(".preview-section");
+  const togglePreviewBtn = document.getElementById("toggle-preview");
   const fileInfo = document.getElementById("file-info");
   const fileList = document.getElementById("file-list");
 
+  let expanded = false;
+  let allFiles = [];
+
   fileInput.addEventListener("change", function () {
-    const files = Array.from(this.files);
+    const newFiles = Array.from(this.files);
+    const filteredFiles = newFiles.filter(newFile => {
+      return !allFiles.some(existingFile => existingFile.name === newFile.name && existingFile.size === newFile.size);
+    });
+
+    if (filteredFiles.length < newFiles.length) {
+      const warning = document.createElement("div");
+      warning.innerText = "⚠️ 중복된 파일은 업로드되지 않았습니다.";
+      warning.style.color = "#e74c3c";
+      warning.style.fontSize = "13px";
+      warning.style.marginTop = "8px";
+      fileInput.parentElement.appendChild(warning);
+      setTimeout(() => warning.remove(), 3000);
+    }
+
+    allFiles = allFiles.concat(filteredFiles);
+    renderPreviews();
+  });
+
+  function renderPreviews() {
     preview.innerHTML = "";
     fileList.innerHTML = "";
 
-    if (files.length === 0) {
+    if (allFiles.length === 0) {
       fileInfo.innerText = "선택된 파일이 없습니다.";
+      togglePreviewBtn.style.display = "none";
       return;
     }
 
-    fileInfo.innerText = `총 ${files.length}장의 사진이 업로드되었습니다.`;
+    fileInfo.innerText = `총 ${allFiles.length}장의 사진이 업로드되었습니다.`;
 
-    files.forEach(file => {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const img = document.createElement("img");
-        img.src = e.target.result;
-        img.alt = file.name;
-        img.style.width = "100%";
-        img.style.borderRadius = "8px";
-        img.style.marginTop = "12px";
-        preview.appendChild(img);
-      };
-      reader.readAsDataURL(file);
-
+    allFiles.forEach((file, index) => {
       const li = document.createElement("li");
       li.innerText = file.name;
+      li.classList.add("file-item");
+      li.style.display = index >= 3 && !expanded ? "none" : "list-item";
       fileList.appendChild(li);
+
+      const reader = new FileReader();
+      reader.onload = (function (fixedIndex) {
+        return function (e) {
+          const wrapper = document.createElement("div");
+          wrapper.style.position = "relative";
+
+          const img = document.createElement("img");
+          img.src = e.target.result;
+          img.alt = file.name;
+          img.classList.add("preview-thumb");
+          img.style.display = fixedIndex >= 3 && !expanded ? "none" : "block";
+          img.style.width = "100%";
+          img.style.borderRadius = "8px";
+          img.style.marginTop = "12px";
+
+          const deleteBtn = document.createElement("span");
+          deleteBtn.innerText = "✕";
+          deleteBtn.style.position = "absolute";
+          deleteBtn.style.top = "4px";
+          deleteBtn.style.right = "8px";
+          deleteBtn.style.background = "rgba(0,0,0,0.5)";
+          deleteBtn.style.color = "white";
+          deleteBtn.style.borderRadius = "50%";
+          deleteBtn.style.padding = "2px 6px";
+          deleteBtn.style.cursor = "pointer";
+          deleteBtn.style.fontSize = "12px";
+          deleteBtn.style.display = fixedIndex >= 3 && !expanded ? "none" : "inline";
+
+          deleteBtn.addEventListener("click", () => {
+            allFiles.splice(fixedIndex, 1);
+            renderPreviews();
+          });
+
+          wrapper.appendChild(img);
+          wrapper.appendChild(deleteBtn);
+          preview.appendChild(wrapper);
+        };
+      })(index);
+      reader.readAsDataURL(file);
     });
+
+    if (allFiles.length > 3) {
+      togglePreviewBtn.style.display = "inline-block";
+    } else {
+      togglePreviewBtn.style.display = "none";
+    }
+  }
+
+  togglePreviewBtn.addEventListener("click", function () {
+    expanded = !expanded;
+    renderPreviews();
+    togglePreviewBtn.innerText = expanded ? "접기" : "더보기";
   });
 
   document.getElementById("analysis-form").addEventListener("submit", function (e) {

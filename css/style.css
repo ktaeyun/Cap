@@ -204,10 +204,19 @@ body {
   background-color: #E5E8EB;
 }
 
+#preview-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
 #preview-container img {
   width: 100%;
-  margin-top: 12px;
+  height: auto;
   border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 
@@ -228,3 +237,57 @@ body {
 .file-list li {
   margin-bottom: 4px;
 }
+
+
+.toggle-btn {
+  background-color: #f2f4f6;
+  color: #333;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.toggle-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.preview-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.toggle-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.toggle-btn {
+  background-color: #f2f4f6;
+  color: #333;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.toggle-btn:hover {
+  background-color: #e0e0e0;
+}
+
+#toggle-preview {
+  display: none; /* 기본은 안 보이게 */
+}
+
+.upload-box.dragover {
+  background-color: #e5e8eb;
+  transition: background-color 0.2s ease;
+}
+
