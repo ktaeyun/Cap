@@ -7,15 +7,22 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <!-- ✅ 상단 로고만 있는 헤더 -->
+  <header class="top-bar">
+    <div class="logo">HairBridge</div>
+  </header>
+
+  <!-- ✅ 메인 영역 -->
   <main class="center-box">
-    <h1>HairBridge</h1>
+    <h2 class="page-title">시작하기</h2>
     <p class="tagline">머리 고민, 여기서 해결하세요</p>
     <p class="subtitle">이메일을 입력해주세요</p>
     <form id="email-form">
       <input type="email" id="email" placeholder="example@email.com" required>
-      <button type="submit">다음</button>
+      <button type="submit" class="primary-btn">다음</button>
     </form>
   </main>
+
   <script src="js/main.js"></script>
 </body>
 </html>

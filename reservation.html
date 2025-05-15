@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HairBridge - 미용실 예약</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <main class="center-box">
+    <div class="card-box">
+      <h1 class="main-title">💈 미용실 예약하기</h1>
+      <form id="reservation-form">
+        <label for="name" class="input-label">이름</label>
+        <input type="text" id="name" placeholder="홍길동" required />
+
+        <label for="date" class="input-label">예약 날짜</label>
+        <input type="date" id="date" required />
+
+        <label for="time" class="input-label">예약 시간</label>
+        <input type="time" id="time" required />
+
+        <label for="style" class="input-label">희망 스타일</label>
+        <select id="style" required>
+          <option value="">선택하세요</option>
+          <option value="컷트">컷트</option>
+          <option value="펌">펌</option>
+          <option value="염색">염색</option>
+          <option value="클리닉">클리닉</option>
+        </select>
+
+        <button type="submit" class="primary-btn">예약하기</button>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById("reservation-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      alert("🎉 예약이 완료되었습니다!");
+      window.location.href = "dashboard.html"; // 또는 결과 요약 페이지
+    });
+  </script>
+</body>
+</html>

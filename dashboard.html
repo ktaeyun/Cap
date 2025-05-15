@@ -2,34 +2,37 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>HairBridge - 대시보드</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-    <main class="center-box">
-        <div class="header-row">
-            <h1 id="welcome-msg">환영합니다!</h1>
-            <button id="logout-btn" class="logout-btn">로그아웃</button>
-          </div>
-        <section class="recent-info">
-          <h3>최근 분석 정보</h3>
-          <div class="info-card">
-            <p>최근 분석 정보가 없습니다.</p>
-            <p>최근 분석 날짜: -</p>
-          </div>
-        </section>
-      
-        
-      
-        <div class="action-group">
-          <button class="primary-btn" onclick="location.href='analysis.html'">헤어 분석 요청하기</button>
-          <button class="primary-btn" onclick="location.href='reservation.html'">미용실 예약하기</button>
-        </div>
-      </main>
-      
-      
+
+  <!-- ✅ 상단 네비게이션 -->
+  <header class="top-bar">
+    <div class="logo">HairBridge</div>
+    <div class="user-info">
+      <span id="welcome-msg">사용자님, 환영합니다</span>
+      <button id="logout-btn" class="logout-btn">로그아웃</button>
+    </div>
+  </header>
+
+  <!-- ✅ 대시보드 콘텐츠 -->
+  <main class="center-box">
+    <section class="recent-info">
+      <h2 class="section-title">📌 최근 분석 정보</h2>
+      <div class="info-card">
+        <p>최근 분석 정보가 없습니다.</p>
+        <p>최근 분석 날짜: -</p>
+      </div>
+    </section>
+
+    <section class="action-group">
+      <button class="primary-btn" onclick="location.href='analysis.html'">헤어 분석 요청하기</button>
+      <button class="primary-btn" onclick="location.href='reservation.html'">미용실 예약하기</button>
+    </section>
+  </main>
 
   <script src="js/main.js"></script>
 </body>
