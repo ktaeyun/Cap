@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
   else if (path.includes("login.html")) initLoginPage();
   else if (path.includes("dashboard.html")) initDashboard();
   else if (path.includes("analysis.html")) initAnalysisPage(); 
+  else if (path.includes("result.html")) initResultPage();
 });
 
   
@@ -156,35 +157,36 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   
   function initAnalysisPage() {
-  const fileInput = document.getElementById("photo-upload");
-  const preview = document.getElementById("preview-container");
-  const previewSection = document.querySelector(".preview-section");
-  const togglePreviewBtn = document.getElementById("toggle-preview");
-  const fileInfo = document.getElementById("file-info");
-  const fileList = document.getElementById("file-list");
+    const fileInput = document.getElementById("photo-upload");
+    const preview = document.getElementById("preview-container");
+    const previewSection = document.querySelector(".preview-section");
+    const togglePreviewBtn = document.getElementById("toggle-preview");
+    const fileInfo = document.getElementById("file-info");
+    const fileList = document.getElementById("file-list");
 
-  let expanded = false;
-  let allFiles = [];
+    let expanded = false;
+    let allFiles = [];
 
-  fileInput.addEventListener("change", function () {
-    const newFiles = Array.from(this.files);
-    const filteredFiles = newFiles.filter(newFile => {
-      return !allFiles.some(existingFile => existingFile.name === newFile.name && existingFile.size === newFile.size);
-    });
+    fileInput.addEventListener("change", function () {
+      const newFiles = Array.from(this.files);
+      const filteredFiles = newFiles.filter(newFile => {
+        return !allFiles.some(existingFile => existingFile.name === newFile.name && existingFile.size === newFile.size);
+      });
 
-    if (filteredFiles.length < newFiles.length) {
-      const warning = document.createElement("div");
-      warning.innerText = "⚠️ 중복된 파일은 업로드되지 않았습니다.";
-      warning.style.color = "#e74c3c";
-      warning.style.fontSize = "13px";
-      warning.style.marginTop = "8px";
-      fileInput.parentElement.appendChild(warning);
-      setTimeout(() => warning.remove(), 3000);
-    }
+      if (filteredFiles.length < newFiles.length) {
+        const warning = document.createElement("div");
+        warning.innerText = "⚠️ 중복된 파일은 업로드되지 않았습니다.";
+        warning.style.color = "#e74c3c";
+        warning.style.fontSize = "13px";
+        warning.style.marginTop = "8px";
+        fileInput.parentElement.appendChild(warning);
+        setTimeout(() => warning.remove(), 3000);
+      }
 
-    allFiles = allFiles.concat(filteredFiles);
-    renderPreviews();
-  });
+        allFiles = allFiles.concat(filteredFiles);
+        renderPreviews();
+      }
+    );
 
   function renderPreviews() {
     preview.innerHTML = "";
@@ -243,15 +245,16 @@ document.addEventListener("DOMContentLoaded", function () {
           preview.appendChild(wrapper);
         };
       })(index);
-      reader.readAsDataURL(file);
-    });
+        reader.readAsDataURL(file);
+      }
+    );
 
-    if (allFiles.length > 3) {
-      togglePreviewBtn.style.display = "inline-block";
-    } else {
-      togglePreviewBtn.style.display = "none";
+      if (allFiles.length > 3) {
+        togglePreviewBtn.style.display = "inline-block";
+      } else {
+        togglePreviewBtn.style.display = "none";
+      }
     }
-  }
 
   togglePreviewBtn.addEventListener("click", function () {
     expanded = !expanded;
@@ -261,6 +264,84 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.getElementById("analysis-form").addEventListener("submit", function (e) {
     e.preventDefault();
-    alert("분석 요청이 완료되었습니다!");
+
+    const formData = new FormData();
+    allFiles.forEach(file => {
+      formData.append("images", file);
+    });
+
+    const loading = document.createElement("p");
+    loading.innerText = "⏳ 분석 중입니다...";
+    loading.style.color = "#666";
+    document.getElementById("analysis-form").appendChild(loading);
+
+    fetch("http://localhost:8080/analyze", {
+      method: "POST",
+      body: formData
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          alert("❌ 분석 실패: " + data.error);
+          loading.remove();
+          return;
+        }
+
+        // ✅ 결과 저장
+        localStorage.setItem("analysisResult", JSON.stringify(data));
+
+        // ✅ 결과 페이지로 이동
+        window.location.href = "result.html";
+      })
+      .catch(err => {
+        alert("❌ 서버 오류: " + err.message);
+        loading.remove();
+      });
   });
+
+
 }
+
+function initResultPage() {
+  const resultBox = document.getElementById("result-container");
+  const data = JSON.parse(localStorage.getItem("analysisResult") || "[]");
+
+  if (!Array.isArray(data) || data.length === 0 || data.error) {
+    resultBox.innerHTML = `<p class="error">❌ 분석 결과를 불러올 수 없습니다.</p>`;
+  } else {
+    resultBox.innerHTML = `
+      <table class="result-table">
+        <thead>
+          <tr>
+            <th>이미지</th>
+            <th>컬 유형</th>
+            <th>손상도</th>
+            <th>굵기</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${data.map(row => `
+            <tr>
+              <td>${row.Image}</td>
+              <td>${row.Curl}</td>
+              <td>${row.Damage}</td>
+              <td>${row.Width}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+
+    // ✅ 버튼 생성 및 예약 페이지로 이동
+    const reserveBtn = document.createElement("button");
+    reserveBtn.innerText = "💈 미용실 예약하기";
+    reserveBtn.className = "primary-btn";
+    reserveBtn.style.marginTop = "24px";
+    reserveBtn.addEventListener("click", () => {
+      window.location.href = "reservation.html";
+    });
+
+    resultBox.appendChild(reserveBtn);
+  }
+}
+

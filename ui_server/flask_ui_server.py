@@ -5,7 +5,7 @@ import requests
 app = Flask(__name__)
 CORS(app)
 
-ANALYSIS_SERVER_URL = "http://<서버B_IP>:5000/analyze"  # 🔁 서버 B 주소로 설정
+ANALYSIS_SERVER_URL = "http://10.80.87.124:5000/analyze"  # 모델 서버 IP
 
 @app.route('/analyze', methods=['POST'])
 def proxy_to_analysis():
@@ -17,7 +17,7 @@ def proxy_to_analysis():
     try:
         res = requests.post(ANALYSIS_SERVER_URL, files=files)
         res.raise_for_status()
-        return jsonify(res.json())
+        return res.json()  # jsonify() 없이 그대로 반환
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

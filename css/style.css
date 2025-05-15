@@ -291,3 +291,35 @@ body {
   transition: background-color 0.2s ease;
 }
 
+/* result.css */
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  padding: 40px;
+  background-color: #f9f9f9;
+}
+
+h1 {
+  margin-bottom: 24px;
+}
+
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.result-table th, .result-table td {
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.result-table th {
+  background-color: #f0f0f0;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+}
