@@ -9,10 +9,10 @@ ANALYSIS_SERVER_URL = "http://10.80.87.124:5000/analyze"  # 모델 서버 IP
 
 @app.route('/analyze', methods=['POST'])
 def proxy_to_analysis():
-    if 'images' not in request.files:
+    if 'videos' not in request.files:
         return jsonify({"error": "이미지가 없습니다"}), 400
 
-    files = [('images', (f.filename, f.stream, f.mimetype)) for f in request.files.getlist('images')]
+    files = [('videos', (f.filename, f.stream, f.mimetype)) for f in request.files.getlist('videos')]
 
     try:
         res = requests.post(ANALYSIS_SERVER_URL, files=files)

@@ -182,6 +182,7 @@ function initAnalysisPage() {
       window.location.href = "index.html";
     });
   }
+
   const fileInput = document.getElementById("photo-upload");
   const preview = document.getElementById("preview-container");
   const togglePreviewBtn = document.getElementById("toggle-preview");
@@ -193,13 +194,25 @@ function initAnalysisPage() {
 
   fileInput.addEventListener("change", function () {
     const newFiles = Array.from(this.files);
+    const validExtensions = ['mp4', 'mov', 'avi'];
+
     const filteredFiles = newFiles.filter(newFile => {
-      return !allFiles.some(existingFile => existingFile.name === newFile.name && existingFile.size === newFile.size);
+      const ext = newFile.name.split('.').pop().toLowerCase();
+      const isDuplicate = allFiles.some(existingFile =>
+        existingFile.name === newFile.name && existingFile.size === newFile.size
+      );
+      const isValid = validExtensions.includes(ext);
+
+      if (!isValid) {
+        alert(`❌ [${newFile.name}]는 허용되지 않은 형식입니다. (.mp4, .mov, .avi만 가능)`);
+      }
+
+      return !isDuplicate && isValid;
     });
 
     if (filteredFiles.length < newFiles.length) {
       const warning = document.createElement("div");
-      warning.innerText = "⚠️ 중복된 파일은 업로드되지 않았습니다.";
+      warning.innerText = "⚠️ 중복 또는 잘못된 파일은 업로드되지 않았습니다.";
       warning.style.color = "#e74c3c";
       warning.style.fontSize = "13px";
       warning.style.marginTop = "8px";
@@ -222,7 +235,7 @@ function initAnalysisPage() {
       return;
     }
 
-    fileInfo.innerText = `총 ${allFiles.length}장의 사진이 업로드되었습니다.`;
+    fileInfo.innerText = `총 ${allFiles.length}개의 영상이 업로드되었습니다.`;
 
     allFiles.forEach((file, index) => {
       const li = document.createElement("li");
@@ -231,45 +244,39 @@ function initAnalysisPage() {
       li.style.display = index >= 3 && !expanded ? "none" : "list-item";
       fileList.appendChild(li);
 
-      const reader = new FileReader();
-      reader.onload = (function (fixedIndex) {
-        return function (e) {
-          const wrapper = document.createElement("div");
-          wrapper.style.position = "relative";
+      const wrapper = document.createElement("div");
+      wrapper.style.position = "relative";
 
-          const img = document.createElement("img");
-          img.src = e.target.result;
-          img.alt = file.name;
-          img.classList.add("preview-thumb");
-          img.style.display = fixedIndex >= 3 && !expanded ? "none" : "block";
-          img.style.width = "100%";
-          img.style.borderRadius = "8px";
-          img.style.marginTop = "12px";
+      const video = document.createElement("video");
+      video.src = URL.createObjectURL(file);
+      video.controls = true;
+      video.classList.add("preview-thumb");
+      video.style.display = index >= 3 && !expanded ? "none" : "block";
+      video.style.width = "100%";
+      video.style.borderRadius = "8px";
+      video.style.marginTop = "12px";
 
-          const deleteBtn = document.createElement("span");
-          deleteBtn.innerText = "✕";
-          deleteBtn.style.position = "absolute";
-          deleteBtn.style.top = "4px";
-          deleteBtn.style.right = "8px";
-          deleteBtn.style.background = "rgba(0,0,0,0.5)";
-          deleteBtn.style.color = "white";
-          deleteBtn.style.borderRadius = "50%";
-          deleteBtn.style.padding = "2px 6px";
-          deleteBtn.style.cursor = "pointer";
-          deleteBtn.style.fontSize = "12px";
-          deleteBtn.style.display = fixedIndex >= 3 && !expanded ? "none" : "inline";
+      const deleteBtn = document.createElement("span");
+      deleteBtn.innerText = "✕";
+      deleteBtn.style.position = "absolute";
+      deleteBtn.style.top = "4px";
+      deleteBtn.style.right = "8px";
+      deleteBtn.style.background = "rgba(0,0,0,0.5)";
+      deleteBtn.style.color = "white";
+      deleteBtn.style.borderRadius = "50%";
+      deleteBtn.style.padding = "2px 6px";
+      deleteBtn.style.cursor = "pointer";
+      deleteBtn.style.fontSize = "12px";
+      deleteBtn.style.display = index >= 3 && !expanded ? "none" : "inline";
 
-          deleteBtn.addEventListener("click", () => {
-            allFiles.splice(fixedIndex, 1);
-            renderPreviews();
-          });
+      deleteBtn.addEventListener("click", () => {
+        allFiles.splice(index, 1);
+        renderPreviews();
+      });
 
-          wrapper.appendChild(img);
-          wrapper.appendChild(deleteBtn);
-          preview.appendChild(wrapper);
-        };
-      })(index);
-      reader.readAsDataURL(file);
+      wrapper.appendChild(video);
+      wrapper.appendChild(deleteBtn);
+      preview.appendChild(wrapper);
     });
 
     togglePreviewBtn.style.display = allFiles.length > 3 ? "inline-block" : "none";
@@ -287,7 +294,7 @@ function initAnalysisPage() {
 
     const formData = new FormData();
     allFiles.forEach(file => {
-      formData.append("images", file);
+      formData.append("videos", file); // ✅ key명을 'videos'로 변경
     });
 
     document.getElementById("full-screen-loader").style.display = "flex";
@@ -334,47 +341,72 @@ function initAnalysisPage() {
 // result.html: 분석 결과 테이블 생성 및 버튼 연결
 function initResultPage() {
   const resultBox = document.getElementById("result-container");
-  const data = JSON.parse(localStorage.getItem("analysisResult") || "[]");
+  const result = JSON.parse(localStorage.getItem("analysisResult") || "{}");
 
-  if (!Array.isArray(data) || data.length === 0 || data.error) {
+  if (!result || !result.averages) {
     resultBox.innerHTML = `<p class="error">❌ 분석 결과를 불러올 수 없습니다.</p>`;
-  } else {
-    resultBox.innerHTML = `
-      <table class="result-table">
-        <thead>
-          <tr>
-            <th>이미지</th>
-            <th>컬 유형</th>
-            <th>손상도</th>
-            <th>굵기</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${data.map(row => `
-            <tr>
-              <td>${row.Image}</td>
-              <td>${row.Curl}</td>
-              <td>${row.Damage}</td>
-              <td>${row.Width}</td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    `;
-
-    // ✅ 버튼 생성 및 예약 페이지로 이동
-    const reserveBtn = document.createElement("button");
-    reserveBtn.innerText = "💈 미용실 예약하기";
-    reserveBtn.className = "primary-btn";
-    reserveBtn.style.marginTop = "24px";
-    reserveBtn.addEventListener("click", () => {
-      window.location.href = "style-recommend.html";
-    });
-
-
-    resultBox.appendChild(reserveBtn);
+    return;
   }
+
+  const avg = result.averages;
+
+  const curlKeys = Object.keys(avg).filter(k => k.startsWith("Curl_"));
+  const damageKeys = Object.keys(avg).filter(k => k.startsWith("Damage_"));
+  const widthKeys = Object.keys(avg).filter(k => k.startsWith("Width_"));
+
+  const curlValues = curlKeys.map(k => avg[k]);
+  const damageValues = damageKeys.map(k => avg[k]);
+  const widthValues = widthKeys.map(k => avg[k]);
+
+  // ✅ 그룹별 색상 지정
+  renderBarChart("curlChart", curlKeys.map(cleanLabel), curlValues, "컬 유형 확률", "rgba(255, 99, 132, 0.7)");
+  renderBarChart("damageChart", damageKeys.map(cleanLabel), damageValues, "손상도 확률", "rgba(54, 162, 235, 0.7)");
+  renderBarChart("widthChart", widthKeys.map(cleanLabel), widthValues, "굵기 확률", "rgba(255, 206, 86, 0.7)");
 }
+
+// ✅ 차트 생성 함수
+function renderBarChart(canvasId, labels, values, label, color) {
+  new Chart(document.getElementById(canvasId), {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: label,
+        data: values,
+        backgroundColor: color,
+        borderColor: color,
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 1
+        }
+      },
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return `${context.label}: ${context.raw}`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+// ✅ 'Curl_곱슬' → '곱슬' 형태로 라벨 정리
+function cleanLabel(key) {
+  return key.split("_")[1];
+}
+
 
 function initStyleRecommendPage() {
   updateUsername(); // 상단 사용자 이름 표시

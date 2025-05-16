@@ -11,12 +11,28 @@
   <main class="center-box">
     <div class="card-box">
       <h1 class="main-title">📊 분석 결과</h1>
+
       <div id="result-container" class="result-box">
-        로딩 중입니다...
+        
+
+        <!-- ✅ 분석 평균값 시각화 캔버스 -->
+        <div class="chart-section">
+          <h2>컬 유형 예측 확률</h2>
+          <canvas id="curlChart" style="max-width: 500px; margin-bottom: 32px;"></canvas>
+
+          <h2>손상도 예측 확률</h2>
+          <canvas id="damageChart" style="max-width: 500px; margin-bottom: 32px;"></canvas>
+
+          <h2>굵기 예측 확률</h2>
+          <canvas id="widthChart" style="max-width: 500px; margin-bottom: 32px;"></canvas>
+        </div>
       </div>
     </div>
   </main>
 
+  <!-- ✅ Chart.js 불러오기 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- ✅ 메인 스크립트 -->
   <script src="js/main.js"></script>
 </body>
 </html>
