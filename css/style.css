@@ -1,8 +1,22 @@
+@font-face {
+  font-family: 'Moneygraphy';
+  src: url('/assets/fonts/Moneygraphy-Pixel.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Spoqa Han Sans';
+  src: url('/assets/fonts/Spoqa Han Sans Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
 /* ========== 공통 설정 ========== */
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  font-family: 'Spoqa Han Sans', 'Moneygraphy', 'Apple SD Gothic Neo';
   background-color: #F9FAFB;
   color: #222;
   
@@ -55,6 +69,7 @@ button {
   padding: 16px;
   background-color: #3182F6;
   color: white;
+  font-family: inherit;
   font-weight: bold;
   font-size: 16px;
   border: none;
@@ -563,4 +578,28 @@ canvas {
   width: 100% !important;
   max-width: 480px;
   margin-bottom: 32px;
+}
+
+/* result 범례 */
+#result-layout {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+}
+
+#legend-summary h3 {
+  margin-bottom: 16px;
+}
+
+#legend-summary div {
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+.legend-box {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  margin-right: 8px;
 }

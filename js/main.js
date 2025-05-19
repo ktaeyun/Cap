@@ -338,6 +338,103 @@ function initAnalysisPage() {
 
 }
 
+// ✅ 차트 생성 함수
+function renderBarChart(canvasId, labels, values, label, color) {
+  const maxValue = Math.max(...values);
+  const backgroundColors = values.map(v => v === maxValue ? shadeColor(color, -20) : color);
+  const fontWeights = values.map(v => v === maxValue ? 'bold' : 'normal');
+
+  new Chart(document.getElementById(canvasId), {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: label,
+        data: values,
+        backgroundColor: backgroundColors,
+        borderColor: backgroundColors,
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: true,
+          labels: {
+            boxWidth: 20,
+            font: { weight: 'bold' }
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              return `${context.label}: ${context.raw}`;
+            }
+          }
+        },
+        datalabels: {
+          color: '#333',
+          anchor: 'end',
+          align: 'top',
+          font: context => ({
+            weight: fontWeights[context.dataIndex]
+          }),
+          formatter: value => value.toFixed(2)
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 1
+        }
+      }
+    },
+    plugins: [ChartDataLabels]  // ✅ 막대 위 텍스트용 플러그인
+  });
+}
+
+// ✅ 색상 어둡게 (강조)
+function shadeColor(color, percent) {
+  let f = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if (!f) return color;
+  return `rgba(${f[1] * (1 + percent / 100)}, ${f[2] * (1 + percent / 100)}, ${f[3] * (1 + percent / 100)}, 1)`;
+}
+
+
+// ✅ 'Curl_곱슬' → '곱슬' 형태로 라벨 정리
+function cleanLabel(key) {
+  return key.split("_")[1];
+}
+
+// ✅ 결과 요약
+function summarizeTopResults(avg) {
+  const getTop = (prefix) => {
+    return Object.entries(avg)
+      .filter(([key]) => key.startsWith(prefix))
+      .reduce((a, b) => (b[1] > a[1] ? b : a));
+  };
+
+  const [curlKey, curlVal] = getTop("Curl_");
+  const [damageKey, damageVal] = getTop("Damage_");
+  const [widthKey, widthVal] = getTop("Width_");
+
+  const curlText = `<strong>컬 유형:</strong> ${curlKey.split("_")[1]} (${(curlVal * 100).toFixed(1)}%)`;
+  const damageText = `<strong>손상도:</strong> ${damageKey.split("_")[1]} (${(damageVal * 100).toFixed(1)}%)`;
+  const widthText = `<strong>굵기:</strong> ${widthKey.split("_")[1]} (${(widthVal * 100).toFixed(1)}%)`;
+
+  const html = `
+    <div style="margin-bottom: 8px;">${curlText}</div>
+    <div style="margin-bottom: 8px;">${damageText}</div>
+    <div>${widthText}</div>
+  `;
+
+  const textBox = document.getElementById("summary-text");
+  if (textBox) textBox.innerHTML = html;
+}
+
+
+
 // result.html: 분석 결과 테이블 생성 및 버튼 연결
 function initResultPage() {
   const resultBox = document.getElementById("result-container");
@@ -362,50 +459,11 @@ function initResultPage() {
   renderBarChart("curlChart", curlKeys.map(cleanLabel), curlValues, "컬 유형 확률", "rgba(255, 99, 132, 0.7)");
   renderBarChart("damageChart", damageKeys.map(cleanLabel), damageValues, "손상도 확률", "rgba(54, 162, 235, 0.7)");
   renderBarChart("widthChart", widthKeys.map(cleanLabel), widthValues, "굵기 확률", "rgba(255, 206, 86, 0.7)");
+
+  summarizeTopResults(avg);
 }
 
-// ✅ 차트 생성 함수
-function renderBarChart(canvasId, labels, values, label, color) {
-  new Chart(document.getElementById(canvasId), {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: label,
-        data: values,
-        backgroundColor: color,
-        borderColor: color,
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: {
-          beginAtZero: true,
-          max: 1
-        }
-      },
-      plugins: {
-        legend: {
-          display: false
-        },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              return `${context.label}: ${context.raw}`;
-            }
-          }
-        }
-      }
-    }
-  });
-}
 
-// ✅ 'Curl_곱슬' → '곱슬' 형태로 라벨 정리
-function cleanLabel(key) {
-  return key.split("_")[1];
-}
 
 
 function initStyleRecommendPage() {
@@ -448,3 +506,4 @@ function initStyleRecommendPage() {
     container.appendChild(card);
   });
 }
+

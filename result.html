@@ -28,10 +28,29 @@
         </div>
       </div>
     </div>
+    <!-- ✅ 헤어 분류 요약 결과 -->
+    <div id="summary-box" style="
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 24px;
+      margin: 48px auto 0 auto;
+      width: 75%;
+      max-width: 720px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    ">
+      <p style="font-size: 18px; font-weight: 600; margin: 0 0 12px 0;">💡 당신의 헤어 분류 결과</p>
+      <div id="summary-text" style="font-size: 16px; font-weight: 500; line-height: 1.8;"></div>
+    </div>
   </main>
 
   <!-- ✅ Chart.js 불러오기 -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
   <!-- ✅ 메인 스크립트 -->
   <script src="js/main.js"></script>
 </body>
