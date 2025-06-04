@@ -711,3 +711,6 @@ window.addEventListener("DOMContentLoaded", () => {
 document.getElementById("consult-message").placeholder =
   "상담 요청 내용\nex. 시술 이력, 원하는 디자인 등";
 
+
+
+  
