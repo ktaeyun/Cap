@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
   else if (path.includes("analysis.html")) initAnalysisPage(); 
   else if (path.includes("result.html")) initResultPage();
   else if (path.includes("style-recommend.html")) initStyleRecommendPage();
+  else if (path.includes("designer-detail.html")) initDesignerDetailPage();
 });
 
 // index.html: 이메일 입력 후 기존 회원 여부 확인
@@ -341,7 +342,14 @@ function initAnalysisPage() {
 // ✅ 차트 생성 함수
 function renderBarChart(canvasId, labels, values, label, color) {
   const maxValue = Math.max(...values);
-  const backgroundColors = values.map(v => v === maxValue ? shadeColor(color, -20) : color);
+  const suggestedMax = maxValue < 0.8 ? maxValue + 0.2 : 1.0;
+
+  const backgroundColors = values.map(v =>
+    v === maxValue ? shadeColor(color, -20) : color
+  );
+  const borderColors = values.map(v =>
+    v === maxValue ? shadeColor(color, -50) : color
+  );
   const fontWeights = values.map(v => v === maxValue ? 'bold' : 'normal');
 
   new Chart(document.getElementById(canvasId), {
@@ -352,24 +360,23 @@ function renderBarChart(canvasId, labels, values, label, color) {
         label: label,
         data: values,
         backgroundColor: backgroundColors,
-        borderColor: backgroundColors,
-        borderWidth: 1
+        borderColor: borderColors,
+        borderWidth: 1,
+        borderRadius: 8, // Toss 스타일처럼 둥근 막대
+        barPercentage: 0.6,
+        categoryPercentage: 0.6
       }]
     },
     options: {
       responsive: true,
       plugins: {
         legend: {
-          display: true,
-          labels: {
-            boxWidth: 20,
-            font: { weight: 'bold' }
-          }
+          display: false
         },
         tooltip: {
           callbacks: {
             label: function (context) {
-              return `${context.label}: ${context.raw}`;
+              return `${context.label}: ${(context.raw * 100).toFixed(1)}%`;
             }
           }
         },
@@ -378,21 +385,32 @@ function renderBarChart(canvasId, labels, values, label, color) {
           anchor: 'end',
           align: 'top',
           font: context => ({
-            weight: fontWeights[context.dataIndex]
+            weight: fontWeights[context.dataIndex],
+            size: 14
           }),
-          formatter: value => value.toFixed(2)
+          formatter: value => (value * 100).toFixed(1) + '%'
         }
       },
       scales: {
         y: {
           beginAtZero: true,
-          max: 1
+          max: suggestedMax,
+          ticks: {
+            stepSize: 0.2,
+            font: { size: 12 },
+            color: '#999',
+            callback: value => (value * 100).toFixed(0) + '%'  
+          },
+          grid: {
+            color: 'rgba(0,0,0,0.05)'
+          }
         }
       }
     },
-    plugins: [ChartDataLabels]  // ✅ 막대 위 텍스트용 플러그인
+    plugins: [ChartDataLabels]
   });
 }
+
 
 // ✅ 색상 어둡게 (강조)
 function shadeColor(color, percent) {
@@ -408,20 +426,17 @@ function cleanLabel(key) {
 }
 
 // ✅ 결과 요약
-function summarizeTopResults(avg) {
-  const getTop = (prefix) => {
-    return Object.entries(avg)
-      .filter(([key]) => key.startsWith(prefix))
-      .reduce((a, b) => (b[1] > a[1] ? b : a));
-  };
+function summarizeTopResults(result) {
+  const getTop = (obj) =>
+    Object.entries(obj).reduce((a, b) => (b[1] > a[1] ? b : a));
 
-  const [curlKey, curlVal] = getTop("Curl_");
-  const [damageKey, damageVal] = getTop("Damage_");
-  const [widthKey, widthVal] = getTop("Width_");
+  const [curlKey, curlVal] = getTop(result.Curl);
+  const [damageKey, damageVal] = getTop(result.Damage);
+  const [widthKey, widthVal] = getTop(result.Width);
 
-  const curlText = `<strong>컬 유형:</strong> ${curlKey.split("_")[1]} (${(curlVal * 100).toFixed(1)}%)`;
-  const damageText = `<strong>손상도:</strong> ${damageKey.split("_")[1]} (${(damageVal * 100).toFixed(1)}%)`;
-  const widthText = `<strong>굵기:</strong> ${widthKey.split("_")[1]} (${(widthVal * 100).toFixed(1)}%)`;
+  const curlText = `<strong>컬 유형:</strong> ${curlKey} (${curlVal.toFixed(1)}%)`;
+  const damageText = `<strong>손상도:</strong> ${damageKey} (${damageVal.toFixed(1)}%)`;
+  const widthText = `<strong>굵기:</strong> ${widthKey} (${widthVal.toFixed(1)}%)`;
 
   const html = `
     <div style="margin-bottom: 8px;">${curlText}</div>
@@ -435,62 +450,122 @@ function summarizeTopResults(avg) {
 
 
 
+
 // result.html: 분석 결과 테이블 생성 및 버튼 연결
 function initResultPage() {
   const resultBox = document.getElementById("result-container");
   const result = JSON.parse(localStorage.getItem("analysisResult") || "{}");
 
-  if (!result || !result.averages) {
+  if (!result || !result.Curl || !result.Damage || !result.Width) {
     resultBox.innerHTML = `<p class="error">❌ 분석 결과를 불러올 수 없습니다.</p>`;
     return;
   }
 
-  const avg = result.averages;
+  // ✅ 각각 퍼센트 → 소수로 변환 (Chart.js는 0~1 범위로 시각화)
+  const curlLabels = Object.keys(result.Curl);
+  const curlValues = Object.values(result.Curl).map(v => v / 100);
 
-  const curlKeys = Object.keys(avg).filter(k => k.startsWith("Curl_"));
-  const damageKeys = Object.keys(avg).filter(k => k.startsWith("Damage_"));
-  const widthKeys = Object.keys(avg).filter(k => k.startsWith("Width_"));
+  const damageLabels = Object.keys(result.Damage);
+  const damageValues = Object.values(result.Damage).map(v => v / 100);
 
-  const curlValues = curlKeys.map(k => avg[k]);
-  const damageValues = damageKeys.map(k => avg[k]);
-  const widthValues = widthKeys.map(k => avg[k]);
+  const widthLabels = Object.keys(result.Width);
+  const widthValues = Object.values(result.Width).map(v => v / 100);
 
-  // ✅ 그룹별 색상 지정
-  renderBarChart("curlChart", curlKeys.map(cleanLabel), curlValues, "컬 유형 확률", "rgba(255, 99, 132, 0.7)");
-  renderBarChart("damageChart", damageKeys.map(cleanLabel), damageValues, "손상도 확률", "rgba(54, 162, 235, 0.7)");
-  renderBarChart("widthChart", widthKeys.map(cleanLabel), widthValues, "굵기 확률", "rgba(255, 206, 86, 0.7)");
+  renderBarChart("curlChart", curlLabels, curlValues, "컬 유형", "rgba(255, 99, 132, 0.7)");
+  renderBarChart("damageChart", damageLabels, damageValues, "손상도", "rgba(54, 162, 235, 0.7)");
+  renderBarChart("widthChart", widthLabels, widthValues, "굵기", "rgba(255, 206, 86, 0.7)");
 
-  summarizeTopResults(avg);
+  summarizeTopResults(result);
+
+  const nextBtn = document.getElementById("next-btn");
+  if (nextBtn) {
+    document.getElementById("next-btn").addEventListener("click", () => {
+      window.location.href = "3d/splat/index.html";
+    });
+  }
+
 }
 
 
 
-
 function initStyleRecommendPage() {
-  updateUsername(); // 상단 사용자 이름 표시
+  // ✅ 사용자 이름 표시
+  const name = localStorage.getItem("name") || "사용자";
+  const nameSpan = document.getElementById("welcome-msg");
+  if (nameSpan) {
+    nameSpan.innerText = `${name}님, 환영합니다.`;
+  }
+
+  // ✅ 로그아웃 버튼 작동
+  const logoutBtn = document.getElementById("logout-btn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("email");
+      localStorage.removeItem("name");
+      window.location.href = "index.html";
+    });
+  }
 
   const container = document.querySelector(".style-card-list");
 
-  // ✅ 예시 카드 데이터 (나중에 fetch로 교체 가능)
   const styleData = [
     {
-      image: "images/style1.jpg",
-      features: "곱슬 / 손상모 / 보통",
-      title: "시스루 펌",
-      designer: "홍예진 실장",
+      image: "assets/images/style_시스루댄디.jpg",
+      features: "반곱슬 / 손상모 / 보통",
+      title: "시스루 댄디",
+      designer: "민영 팀장",
+      shop: "박승철헤어스튜디오 송도국제도시점",
       id: 1
     },
+
     {
-      image: "images/style2.jpg",
-      features: "직모 / 건강모 / 얇음",
-      title: "내추럴 스트레이트",
-      designer: "이수연 디자이너",
+      image: "assets/images/style_쉼표.jpg",
+      features: "반곱슬 / 손상모 / 보통",
+      title: "가르마 펌",
+      designer: "오연중 실장",
+      shop: "박승철헤어스튜디오 송도국제도시점",
       id: 2
+    },
+
+    {
+      image: "assets/images/style_쉐도우-펌.jpg",
+      features: "반곱슬 / 손상모 / 보통",
+      title: "쉐도우 펌",
+      designer: "하은 디자이너",
+      shop: "박승철헤어스튜디오 송도국제도시점",
+      id: 3
+    },
+
+    {
+      image: "assets/images/style_드롭.jpg",
+      features: "반곱슬 / 손상모 / 보통",
+      title: "드롭컷",
+      designer: "문 부원장",
+      shop: "준오헤어 송도센트럴파크점",
+      id: 4
+    },
+
+    {
+      image: "assets/images/style_가르마.jpg",
+      features: "반곱슬 / 손상모 / 보통",
+      title: "가르마 펌",
+      designer: "민지 실장",
+      shop: "준오헤어 송도센트럴파크점",
+      id: 5
+    },
+
+    {
+      image: "assets/images/style_시스루매직.jpg",
+      features: "반곱슬 / 손상모 / 보통",
+      title: "시스루 매직",
+      designer: "더기 디자이너",
+      shop: "로이드밤 송도점",
+      id: 6
     }
-    // 추가 가능
+
+
   ];
 
-  // ✅ 카드 DOM 구성 및 삽입
   styleData.forEach(style => {
     const card = document.createElement("div");
     card.className = "style-card";
@@ -500,10 +575,139 @@ function initStyleRecommendPage() {
         <p><strong>헤어 분석:</strong> ${style.features}</p>
         <p><strong>디자인명:</strong> ${style.title}</p>
         <p><strong>디자이너:</strong> ${style.designer}</p>
+        <p><strong>헤어숍:</strong> ${style.shop}</p>
       </div>
       <button class="primary-btn" onclick="location.href='designer-detail.html?id=${style.id}'">디자이너 보기</button>
     `;
     container.appendChild(card);
   });
 }
+
+function initDesignerDetailPage() {
+  const name = localStorage.getItem("name") || "사용자";
+  const welcome = document.getElementById("welcome-msg");
+  if (welcome) welcome.innerText = `${name}님, 환영합니다.`;
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const id = parseInt(urlParams.get("id"));
+  const box = document.getElementById("designer-detail-box");
+
+  const designers = [
+    {
+      id: 1,
+      name: "민영 팀장",
+      image: "assets/images/디자이너.jpg",
+      shop: "박승철헤어스투디오 송도국제도시점",
+      tag: "인기스타일리스트 · 최근 123건 시술",
+      instagram: "http://www.instagram.com/_minyoung_d",
+      highlights: [
+        "[수석 민영팀장 첫방문 20% 할인] (비할인 품목 제외)",
+        "[네이버 1위] - 송도 미용실 인기스타일리스트",
+        "시술 만족도 1%",
+        "퍼스널 컬러 디자인 전문",
+        "남자 헤어스타일 전문",
+        "레이어드펌 전문",
+        "저만의 감성으로 고객님의 니즈에 맞는 스타일을 찾아드리겠습니다."
+      ],
+      career: [
+        "박승철 수석 팀장",
+        "박승철 2016 최종승급제 통과",
+        "박승철 전과정 교육 이수 (트리콜로지, 서비스, 펌, 컬러, 드라이, 커트)",
+        "박승철 아카데미 프리미엄 헤어살롱 교육 이수",
+        "로레알 컬러 디플로마 수료",
+        "웰라 컬러 디플로마 수료",
+        "밀본 컬러 디플로마 수료",
+        "케라스타즈 두피 스파 클리닉 교육 이수",
+        "※ 매주 월요일 휴무입니다."
+      ],
+      bookingUrl: "https://booking.naver.com/booking/13/bizes/198891"
+    }
+    // 다른 디자이너 추가 가능
+  ];
+
+  const data = designers.find(d => d.id === id);
+
+  if (!data) {
+    box.innerHTML = `<p class="error">❌ 해당 디자이너 정보를 찾을 수 없습니다.</p>`;
+    return;
+  }
+
+  box.innerHTML = `
+    <div class="designer-header">
+      <img src="${data.image}" alt="${data.name}" class="designer-photo" />
+      <div class="designer-name">${data.name}</div>
+      <div class="designer-shop">${data.shop}</div>
+      <div class="designer-tag">#${data.tag}</div>
+      <a href="${data.instagram}" class="sns-link" target="_blank">${data.instagram}</a>
+    </div>
+
+    <div class="designer-body">
+      ${data.highlights.map(p => `<p>${p}</p>`).join("")}
+      <br/>
+      ${data.career.map(p => `<p>${p}</p>`).join("")}
+    </div>
+  `;
+
+  const logoutBtn = document.getElementById("logout-btn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("email");
+      localStorage.removeItem("name");
+      window.location.href = "index.html";
+    });
+  }
+}
+
+// 상담 모달 열기 및 닫기 함수
+function openConsultModal() {
+  document.getElementById("consult-modal").style.display = "flex";
+}
+
+function closeConsultModal() {
+  document.getElementById("consult-modal").style.display = "none";
+}
+
+// 사용자 이름 자동 입력
+window.addEventListener("DOMContentLoaded", () => {
+  const name = localStorage.getItem("name") || "사용자";
+  const nameField = document.getElementById("user-name");
+  if (nameField) nameField.value = name;
+    // ✅ 전화번호 자동 포커스 이동
+    ["user-phone1", "user-phone2"].forEach((id, i) => {
+      const field = document.getElementById(id);
+      if (field) {
+        field.addEventListener("input", function () {
+          if (this.value.length === this.maxLength) {
+            const next = document.getElementById(`user-phone${i + 2}`);
+            if (next) next.focus();
+          }
+        });
+      }
+    });
+  const form = document.getElementById("consult-form");
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const agree3d = document.getElementById("agree-3d");
+      const agreePrivacy = document.getElementById("agree-privacy");
+
+      if (!agree3d.checked) {
+        alert("3D 모델링 전송에 동의해야 상담을 신청할 수 있습니다.");
+        return;
+      }
+
+      if (!agreePrivacy.checked) {
+        alert("개인정보 수집 및 이용에 동의해야 상담을 신청할 수 있습니다.");
+        return;
+      }
+
+      // ✅ 실제 제출 처리 (서버 연동 또는 알림 등)
+      alert("✅ 상담 신청이 완료되었습니다. 디자이너가 확인 후 연락드릴 예정입니다.");
+      closeConsultModal();
+    });
+  }
+});
+document.getElementById("consult-message").placeholder =
+  "상담 요청 내용\nex. 시술 이력, 원하는 디자인 등";
 

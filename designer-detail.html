@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>디자이너 상세 - HairBridge</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- 상단바 -->
+  <header class="top-bar">
+    <div class="logo">HairBridge</div>
+    <div class="user-info">
+      <span id="welcome-msg">사용자님, 환영합니다.</span>
+      <button id="logout-btn" class="logout-btn">로그아웃</button>
+    </div>
+  </header>
+
+  <!-- 본문 -->
+  <main class="recommend-container">
+    <h1 class="section-title">디자이너 상세 정보</h1>
+
+    <div id="designer-detail-box" class="designer-detail-box">
+      <!-- JS로 채워짐 -->
+    </div>
+    <!-- 👇 상담 신청 버튼 -->
+    <div class="reserve-btn-box">
+    <button class="reserve-btn" onclick="openConsultModal()">헤어 상담 신청하기</button>
+    </div>
+
+    <!-- 👇 상담 모달 -->
+    <div id="consult-modal" class="modal">
+    <div class="modal-content">
+        <h3>헤어 상담 신청</h3>
+        <form id="consult-form">
+        <!-- 이름 (읽기 전용) -->
+        <label for="user-name">이름</label>
+        <input type="text" id="user-name" class="readonly-input" readonly />
+
+        <!-- 연락처 -->
+        <label for="user-phone1">연락처</label>
+        <div class="phone-group">
+            <input type="tel" id="user-phone1" maxlength="3"  required />
+            <span class="dash">-</span>
+            <input type="tel" id="user-phone2" maxlength="4"  required />
+            <span class="dash">-</span>
+            <input type="tel" id="user-phone3" maxlength="4"  required />
+        </div>
+
+        <!-- 상담 요청 내용 -->
+        <label for="consult-message">상담 요청 내용</label>
+        <textarea id="consult-message" required></textarea>
+
+        <!-- 3D 모델링 전송 동의 -->
+        <div class="checkbox-row">
+        <label class="checkbox-wrapper">
+            <div class="checkbox-text">
+            3D 모델링 결과를 디자이너에게 전송하는 데 동의합니다. (필수)
+            <!-- <small>※ 3D 모델링은 약 15분 소요되며, 이후 확인 가능합니다.</small> -->
+            </div>
+            <input type="checkbox" id="agree-3d" required />
+        </label>
+        </div>
+
+        <!-- 개인정보 수집 동의 -->
+        <div class="checkbox-row">
+        <label class="checkbox-wrapper">
+            <div class="checkbox-text">
+            개인정보 수집 및 이용에 동의합니다. (필수)
+            </div>
+            <input type="checkbox" id="agree-privacy" required />
+        </label>
+        </div>
+
+        <!-- 마케팅 정보 수신 동의 -->
+        <div class="checkbox-row">
+        <label class="checkbox-wrapper">
+            <div class="checkbox-text">
+            이벤트 및 마케팅 정보 수신에 동의합니다. (선택)
+            </div>
+            <input type="checkbox" id="agree-marketing" />
+        </label>
+        </div>
+
+
+        <!-- 제출/취소 버튼 -->
+        <div class="modal-actions">
+            <button type="submit" class="submit-btn">제출</button>
+            <button type="button" class="cancel-btn" onclick="closeConsultModal()">취소</button>
+        </div>
+        </form>
+    </div>
+    </div>
+
+
+    <div class="back-btn-wrapper">
+      <button class="primary-btn" onclick="window.history.back()">← 추천 목록으로 돌아가기</button>
+    </div>
+  </main>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

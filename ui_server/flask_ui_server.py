@@ -5,7 +5,7 @@ import requests
 app = Flask(__name__)
 CORS(app)
 
-ANALYSIS_SERVER_URL = "http://10.80.87.124:5000/analyze"  # 모델 서버 IP
+ANALYSIS_SERVER_URL = "http://0.0.0.0:port/analyze"  # 필독!! 모델이 돌아가는 백엔드 서버 ip:port 입력할 것
 
 @app.route('/analyze', methods=['POST'])
 def proxy_to_analysis():
@@ -22,4 +22,4 @@ def proxy_to_analysis():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=0000) # 프론트 엔드 포트번호 입력할 것
