@@ -480,7 +480,7 @@ function initResultPage() {
   const nextBtn = document.getElementById("next-btn");
   if (nextBtn) {
     document.getElementById("next-btn").addEventListener("click", () => {
-      window.location.href = "3d/splat/index.html";
+      window.location.href = "3d/index_3d.html";
     });
   }
 
